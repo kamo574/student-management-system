@@ -2,6 +2,7 @@ import { COURSE_OPTIONS, initialStudents, STUDENT_STATUSES } from '../data/initi
 
 export const STORAGE_KEY = 'campus-student-records-v1'
 
+// localStorage keeps the assignment data available after a refresh.
 export const loadStudents = () => {
   try {
     const storedValue = window.localStorage.getItem(STORAGE_KEY)
@@ -22,6 +23,7 @@ export const saveStudents = (students) => {
   }
 }
 
+// `let` fits this changing counter while the final ID is returned as a string.
 export const makeStudentId = (students, year = new Date().getFullYear()) => {
   let nextNumber = 1
   students.forEach((student) => {
@@ -32,6 +34,7 @@ export const makeStudentId = (students, year = new Date().getFullYear()) => {
   return 'STU-' + year + '-' + String(nextNumber).padStart(3, '0')
 }
 
+// Validation returns an object so the modal can show an error beside each field.
 export const validateStudent = (form, students = [], currentId = '') => {
   const errors = {}
   const name = String(form.name || '').trim()
@@ -62,6 +65,7 @@ const normalizeStudent = (id, values) => ({
   isActive: values.status !== 'Inactive',
 })
 
+// Each CRUD helper returns a new array. This immutable approach tells React to rerender.
 export const addStudent = (students, values) => {
   const id = makeStudentId(students)
   return [normalizeStudent(id, values), ...students]
@@ -73,6 +77,7 @@ export const updateStudent = (students, id, values) =>
 export const deleteStudent = (students, id) =>
   students.filter((student) => student.id !== id)
 
+// Sorting a copied array protects the original React state from direct mutation.
 export const sortStudents = (students, sortBy) => {
   const sortedStudents = [...students]
   if (sortBy === 'name') return sortedStudents.sort((left, right) => left.name.localeCompare(right.name))
@@ -81,6 +86,7 @@ export const sortStudents = (students, sortBy) => {
   return sortedStudents.sort((left, right) => right.id.localeCompare(left.id))
 }
 
+// The dashboard uses this derived data to draw the course distribution bars.
 export const getCourseInsights = (students) => {
   const courseCounts = students.reduce((counts, student) => ({
     ...counts,
@@ -94,6 +100,9 @@ export const getCourseInsights = (students) => {
     }))
     .sort((left, right) => right.count - left.count || left.course.localeCompare(right.course))
 }
+
+// A presentation-friendly recovery option for returning the browser to sample data.
+export const resetStudents = () => initialStudents.map((student) => ({ ...student }))
 
 export const getInitials = (name) =>
   String(name).trim().split(/\s+/).map((part) => part.charAt(0)).slice(0, 2).join('').toUpperCase()

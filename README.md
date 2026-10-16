@@ -31,6 +31,7 @@ Create the production build with **pnpm build** or **npm run build**.
 - Automatic browser localStorage persistence.
 - Course-distribution dashboard showing live enrollment totals and proportional progress bars.
 - Duplicate-email protection when adding or editing a record.
+- A presentation-ready quick guide and a Restore demo data action that safely returns the browser to the supplied fictional records.
 
 Starter records use fictional names and example.com email addresses.
 
@@ -65,6 +66,7 @@ Use this while learning and demonstrating the project:
 - [ ] Remove or filter the last visible record and check the empty state.
 - [ ] Refresh and check that records remain in this browser.
 - [ ] Export the directory and open the downloaded CSV.
+- [ ] Use Restore demo data to reset the example records before presenting to the lecturer.
 
 ## Data and privacy
 

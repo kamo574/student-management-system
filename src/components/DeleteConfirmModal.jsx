@@ -3,6 +3,7 @@ import { AlertTriangle, X } from 'lucide-react'
 
 export default function DeleteConfirmModal({ student, onClose, onConfirm }) {
   const cancelRef = useRef(null)
+  // The delete dialog mirrors the form modal behavior for keyboard-friendly dismissal.
   useEffect(() => {
     cancelRef.current?.focus()
     const onKeyDown = (event) => { if (event.key === 'Escape') onClose() }

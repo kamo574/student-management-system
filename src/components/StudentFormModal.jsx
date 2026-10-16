@@ -13,11 +13,13 @@ const createInitialForm = (student, newId) => ({
 })
 
 export default function StudentFormModal({ student, students, newId, onClose, onSave }) {
+  // The same modal receives either an existing record or a generated ID for a new one.
   const [form, setForm] = useState(() => createInitialForm(student, newId))
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const nameRef = useRef(null)
 
+  // Focus, Escape support, and scroll locking make the dialog accessible and usable.
   useEffect(() => {
     nameRef.current?.focus()
     const onKeyDown = (event) => { if (event.key === 'Escape') onClose() }
@@ -30,6 +32,7 @@ export default function StudentFormModal({ student, students, newId, onClose, on
     }
   }, [onClose])
 
+  // A controlled field keeps the current form value in React state.
   const handleChange = (event) => {
     const { name, value } = event.target
     setForm((current) => ({ ...current, [name]: value }))
@@ -37,6 +40,7 @@ export default function StudentFormModal({ student, students, newId, onClose, on
     setFormError('')
   }
 
+  // preventDefault stops a page refresh so validation feedback remains visible.
   const handleSubmit = (event) => {
     event.preventDefault()
     const nextErrors = validateStudent(form, students, student?.id)

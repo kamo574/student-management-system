@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, BookOpenCheck, CircleHelp, Clock3, GraduationCap, LayoutDashboard, Plus, UsersRound } from 'lucide-react'
+import { ArrowUpRight, BookOpenCheck, CircleHelp, Clock3, GraduationCap, LayoutDashboard, Plus, RotateCcw, UsersRound } from 'lucide-react'
 import CampusIllustration from './components/CampusIllustration.jsx'
 import CourseInsights from './components/CourseInsights.jsx'
 import DeleteConfirmModal from './components/DeleteConfirmModal.jsx'
 import StatCard from './components/StatCard.jsx'
 import StudentDirectory from './components/StudentDirectory.jsx'
 import StudentFormModal from './components/StudentFormModal.jsx'
-import { addStudent, createStudentCsv, deleteStudent, getCourseInsights, loadStudents, makeStudentId, saveStudents, sortStudents, updateStudent } from './utils/studentUtils.js'
+import { addStudent, createStudentCsv, deleteStudent, getCourseInsights, loadStudents, makeStudentId, resetStudents, saveStudents, sortStudents, updateStudent } from './utils/studentUtils.js'
 
 export default function App() {
+  // `students` is the single source of truth. Every feature reads from this
+  // state, so adding, editing, and deleting records updates the screen at once.
   const [students, setStudents] = useState(loadStudents)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('All')
@@ -20,6 +22,7 @@ export default function App() {
   const [storageWarning, setStorageWarning] = useState(false)
   const year = new Date().getFullYear()
 
+  // Persist every change in the current browser without requiring a backend.
   useEffect(() => {
     if (!saveStudents(students)) setStorageWarning(true)
   }, [students])
@@ -30,6 +33,7 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [notice])
 
+  // useMemo prevents recalculating summary data unless the student list changes.
   const counts = useMemo(() => ({
     All: students.length,
     Enrolled: students.filter((student) => student.status === 'Enrolled').length,
@@ -41,6 +45,7 @@ export default function App() {
     [students],
   )
   const courseInsights = useMemo(() => getCourseInsights(students), [students])
+  // Search, status filtering, and sorting run together before the directory renders.
   const visibleStudents = useMemo(() => {
     const term = query.trim().toLowerCase()
     const filteredStudents = students.filter((student) => {
@@ -52,6 +57,7 @@ export default function App() {
     return sortStudents(filteredStudents, sortBy)
   }, [students, query, filter, sortBy])
 
+  // Modal helpers keep open/close behavior in one predictable location.
   const closeForm = () => {
     setFormOpen(false)
     setEditing(null)
@@ -64,6 +70,7 @@ export default function App() {
     setEditing(student)
     setFormOpen(true)
   }
+  // This reusable handler switches between immutable update and add operations.
   const saveRecord = (values) => {
     if (editing) {
       setStudents((current) => updateStudent(current, editing.id, values))
@@ -91,6 +98,14 @@ export default function App() {
     link.remove()
     window.setTimeout(() => URL.revokeObjectURL(url), 1000)
     setNotice('The student directory was exported.')
+  }
+  const restoreDemoRecords = () => {
+    if (!window.confirm('Restore the original demonstration records? Your current browser records will be replaced.')) return
+    setStudents(resetStudents())
+    setQuery('')
+    setFilter('All')
+    setSortBy('recent')
+    setNotice('Demo records were restored. Filters and search were reset.')
   }
 
   return (
@@ -148,6 +163,11 @@ export default function App() {
           </section>
 
           <CourseInsights courses={courseInsights} total={students.length} />
+
+          <section className="demo-guide" aria-labelledby="demo-guide-title">
+            <div><p className="section-eyebrow">PRESENTATION READY</p><h2 id="demo-guide-title">Quick demonstration guide</h2><p>Show the required React features in this order: add a record, edit it, search or filter it, then confirm a deletion.</p></div>
+            <div className="demo-guide-actions"><button className="button button-outline" type="button" onClick={restoreDemoRecords}><RotateCcw size={15} /> Restore demo data</button><button className="button button-primary" type="button" onClick={openAdd}><Plus size={15} /> Start with add student</button></div>
+          </section>
 
           {storageWarning && <p className="storage-warning" role="status">Browser storage is unavailable, so changes may not remain after you leave this page.</p>}
 

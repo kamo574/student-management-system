@@ -17,6 +17,7 @@ export default function StudentDirectory({
   students, total, filter, counts, query, sortBy, onQuery, onFilter, onSort,
   onAdd, onEdit, onDelete, onExport,
 }) {
+  // The directory receives display data and callbacks as props, keeping it reusable.
   return (
     <section className="directory-panel" id="student-directory" aria-labelledby="directory-title">
       <div className="directory-heading">

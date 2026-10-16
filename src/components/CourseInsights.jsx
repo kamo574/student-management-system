@@ -1,4 +1,5 @@
 export default function CourseInsights({ courses, total }) {
+  // Course data is calculated in App and displayed here through reusable props.
   return (
     <section className="insights-panel" aria-labelledby="insights-title">
       <div className="insights-heading">
