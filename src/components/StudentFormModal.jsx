@@ -12,7 +12,7 @@ const createInitialForm = (student, newId) => ({
   status: student?.status || 'Enrolled',
 })
 
-export default function StudentFormModal({ student, newId, onClose, onSave }) {
+export default function StudentFormModal({ student, students, newId, onClose, onSave }) {
   const [form, setForm] = useState(() => createInitialForm(student, newId))
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
@@ -39,7 +39,7 @@ export default function StudentFormModal({ student, newId, onClose, onSave }) {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    const nextErrors = validateStudent(form)
+    const nextErrors = validateStudent(form, students, student?.id)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length) {
       setFormError('Please check the highlighted fields.')

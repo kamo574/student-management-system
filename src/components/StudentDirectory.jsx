@@ -1,4 +1,4 @@
-import { Download, Search, UserRoundPlus } from 'lucide-react'
+import { Download, Search, SlidersHorizontal, UserRoundPlus } from 'lucide-react'
 import { getInitials } from '../utils/studentUtils.js'
 
 const statusClass = {
@@ -14,7 +14,7 @@ const filters = [
 ]
 
 export default function StudentDirectory({
-  students, total, filter, counts, query, onQuery, onFilter,
+  students, total, filter, counts, query, sortBy, onQuery, onFilter, onSort,
   onAdd, onEdit, onDelete, onExport,
 }) {
   return (
@@ -40,11 +40,23 @@ export default function StudentDirectory({
             </button>
           ))}
         </div>
-        <label className="search-field">
-          <Search size={16} aria-hidden="true" />
-          <span className="visually-hidden">Search students</span>
-          <input type="search" value={query} onChange={(event) => onQuery(event.target.value)} placeholder="Search name, ID, course..." />
-        </label>
+        <div className="directory-controls">
+          <label className="sort-field">
+            <SlidersHorizontal size={14} aria-hidden="true" />
+            <span className="visually-hidden">Sort students</span>
+            <select value={sortBy} onChange={(event) => onSort(event.target.value)} aria-label="Sort students">
+              <option value="recent">Newest ID</option>
+              <option value="name">Name A-Z</option>
+              <option value="course">Course A-Z</option>
+              <option value="age">Age: highest first</option>
+            </select>
+          </label>
+          <label className="search-field">
+            <Search size={16} aria-hidden="true" />
+            <span className="visually-hidden">Search students</span>
+            <input type="search" value={query} onChange={(event) => onQuery(event.target.value)} placeholder="Search name, ID, course..." />
+          </label>
+        </div>
       </div>
       {students.length ? (
         <div className="table-wrap">

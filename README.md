@@ -2,11 +2,13 @@
 
 A responsive student management dashboard for the DIWA2210 Web Application Development individual assignment. The app uses React and JavaScript to view, add, edit, delete, search, filter, and export student records.
 
-## Hosted version
+Prepared by Kamohelo (`kamo574`).
 
-- **Live app:** https://monkgeclement-hue.github.io/diwa2210-campusflow/
-- **GitHub repository:** https://github.com/monkgeclement-hue/diwa2210-campusflow
-- GitHub Pages publishes the committed `docs/` folder from `main`. To update the live app, run `pnpm build:pages`, commit the resulting `docs/` changes, and push to `main`.
+## Deployment
+
+- **Deployment target:** Netlify.
+- **GitHub owner:** `kamo574`.
+- Netlify builds the project with `pnpm build` and publishes the generated `dist/` directory, as configured in `netlify.toml`.
 
 ## Run locally
 
@@ -24,8 +26,11 @@ Create the production build with **pnpm build** or **npm run build**.
 - Add and edit forms with required-field, email, course, status, and age validation.
 - Delete confirmation with separate cancel and confirm actions.
 - Search by name, ID, email, course, or status; filter by enrollment status.
+- Sort records by newest ID, name, course, or age without reloading the page.
 - CSV export and responsive table/cards.
 - Automatic browser localStorage persistence.
+- Course-distribution dashboard showing live enrollment totals and proportional progress bars.
+- Duplicate-email protection when adding or editing a record.
 
 Starter records use fictional names and example.com email addresses.
 

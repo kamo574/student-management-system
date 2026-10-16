@@ -1,4 +1,4 @@
-import { initialStudents, STUDENT_STATUSES } from '../data/initialStudents.js'
+import { COURSE_OPTIONS, initialStudents, STUDENT_STATUSES } from '../data/initialStudents.js'
 
 export const STORAGE_KEY = 'campus-student-records-v1'
 
@@ -32,7 +32,7 @@ export const makeStudentId = (students, year = new Date().getFullYear()) => {
   return 'STU-' + year + '-' + String(nextNumber).padStart(3, '0')
 }
 
-export const validateStudent = (form) => {
+export const validateStudent = (form, students = [], currentId = '') => {
   const errors = {}
   const name = String(form.name || '').trim()
   const email = String(form.email || '').trim()
@@ -42,7 +42,11 @@ export const validateStudent = (form) => {
   if (form.age === '' || !Number.isInteger(age) || age < 16 || age > 100) {
     errors.age = 'Age must be a whole number between 16 and 100.'
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = 'Enter a valid email address.'
+  } else if (students.some((student) => student.id !== currentId && student.email.trim().toLowerCase() === email.toLowerCase())) {
+    errors.email = 'Another student is already using this email address.'
+  }
   if (!form.course) errors.course = 'Choose a course of study.'
   if (!STUDENT_STATUSES.includes(form.status)) errors.status = 'Choose an enrollment status.'
   return errors
@@ -68,6 +72,28 @@ export const updateStudent = (students, id, values) =>
 
 export const deleteStudent = (students, id) =>
   students.filter((student) => student.id !== id)
+
+export const sortStudents = (students, sortBy) => {
+  const sortedStudents = [...students]
+  if (sortBy === 'name') return sortedStudents.sort((left, right) => left.name.localeCompare(right.name))
+  if (sortBy === 'course') return sortedStudents.sort((left, right) => left.course.localeCompare(right.course) || left.name.localeCompare(right.name))
+  if (sortBy === 'age') return sortedStudents.sort((left, right) => right.age - left.age || left.name.localeCompare(right.name))
+  return sortedStudents.sort((left, right) => right.id.localeCompare(left.id))
+}
+
+export const getCourseInsights = (students) => {
+  const courseCounts = students.reduce((counts, student) => ({
+    ...counts,
+    [student.course]: (counts[student.course] || 0) + 1,
+  }), {})
+  return COURSE_OPTIONS
+    .map((course) => ({
+      course,
+      count: courseCounts[course] || 0,
+      percentage: students.length ? Math.round(((courseCounts[course] || 0) / students.length) * 100) : 0,
+    }))
+    .sort((left, right) => right.count - left.count || left.course.localeCompare(right.course))
+}
 
 export const getInitials = (name) =>
   String(name).trim().split(/\s+/).map((part) => part.charAt(0)).slice(0, 2).join('').toUpperCase()

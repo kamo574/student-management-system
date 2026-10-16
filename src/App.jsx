@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, BookOpenCheck, CircleHelp, Clock3, GraduationCap, LayoutDashboard, Plus, UsersRound } from 'lucide-react'
 import CampusIllustration from './components/CampusIllustration.jsx'
+import CourseInsights from './components/CourseInsights.jsx'
 import DeleteConfirmModal from './components/DeleteConfirmModal.jsx'
 import StatCard from './components/StatCard.jsx'
 import StudentDirectory from './components/StudentDirectory.jsx'
 import StudentFormModal from './components/StudentFormModal.jsx'
-import { addStudent, createStudentCsv, deleteStudent, loadStudents, makeStudentId, saveStudents, updateStudent } from './utils/studentUtils.js'
+import { addStudent, createStudentCsv, deleteStudent, getCourseInsights, loadStudents, makeStudentId, saveStudents, sortStudents, updateStudent } from './utils/studentUtils.js'
 
 export default function App() {
   const [students, setStudents] = useState(loadStudents)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('All')
+  const [sortBy, setSortBy] = useState('recent')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
@@ -38,15 +40,17 @@ export default function App() {
     () => new Set(students.filter((student) => student.isActive).map((student) => student.course)).size,
     [students],
   )
+  const courseInsights = useMemo(() => getCourseInsights(students), [students])
   const visibleStudents = useMemo(() => {
     const term = query.trim().toLowerCase()
-    return students.filter((student) => {
+    const filteredStudents = students.filter((student) => {
       const statusMatches = filter === 'All' || student.status === filter
       const fields = [student.name, student.id, student.email, student.course, student.status]
       const textMatches = !term || fields.some((value) => String(value).toLowerCase().includes(term))
       return statusMatches && textMatches
     })
-  }, [students, query, filter])
+    return sortStudents(filteredStudents, sortBy)
+  }, [students, query, filter, sortBy])
 
   const closeForm = () => {
     setFormOpen(false)
@@ -115,7 +119,7 @@ export default function App() {
               <CircleHelp size={16} /> Need a hand?
             </button>
             <span className="top-separator" />
-            <div className="profile"><span>AO</span><div><strong>Academic office</strong><small>Administrator</small></div></div>
+            <div className="profile"><span>KM</span><div><strong>Kamohelo</strong><small>Academic administrator</small></div></div>
           </div>
         </header>
 
@@ -143,6 +147,8 @@ export default function App() {
             <StatCard icon={BookOpenCheck} label="Active courses" value={String(courseCount).padStart(2, '0')} note="Across active students" tone="lavender" />
           </section>
 
+          <CourseInsights courses={courseInsights} total={students.length} />
+
           {storageWarning && <p className="storage-warning" role="status">Browser storage is unavailable, so changes may not remain after you leave this page.</p>}
 
           <StudentDirectory
@@ -151,18 +157,20 @@ export default function App() {
             filter={filter}
             counts={counts}
             query={query}
+            sortBy={sortBy}
             onQuery={setQuery}
             onFilter={setFilter}
+            onSort={setSortBy}
             onAdd={openAdd}
             onEdit={openEdit}
             onDelete={setDeleting}
             onExport={exportCsv}
           />
-          <footer className="page-footer"><span>© {year} Campus student management</span><span>Built for the next generation of learners</span></footer>
+          <footer className="page-footer"><span>© {year} Campus student management · Kamohelo</span><span>Built for the next generation of learners</span></footer>
         </div>
       </main>
 
-      {formOpen && <StudentFormModal key={editing ? editing.id : 'new'} student={editing} newId={editing?.id || makeStudentId(students, year)} onClose={closeForm} onSave={saveRecord} />}
+      {formOpen && <StudentFormModal key={editing ? editing.id : 'new'} student={editing} students={students} newId={editing?.id || makeStudentId(students, year)} onClose={closeForm} onSave={saveRecord} />}
       {deleting && <DeleteConfirmModal student={deleting} onClose={() => setDeleting(null)} onConfirm={confirmDelete} />}
       {notice && <div className="toast" role="status" aria-live="polite">{notice}</div>}
     </div>
